@@ -3,6 +3,7 @@ from django.http import HttpResponse
 from django.contrib.auth.models import User
 from django.contrib import messages
 from django.contrib.auth import authenticate , login , logout
+from datetime import datetime
 
 from authentication.models import Pricing_Module, Week_Table ,TMF
 
@@ -73,6 +74,7 @@ def signout(request):
 def dashboard(request):
     query_results = Pricing_Module.objects.all()
     fullobj={}
+    activequeue=[]
     for item in query_results:
         objdict={
             "mod_id":item.mod_id,
@@ -82,8 +84,11 @@ def dashboard(request):
             "waiting_time":item.waiting_time,
             "waiting_charge":item.waiting_charge,
             "status":item.status,
-            "usermodifiedby":item.usermodifiedby
-    }
+            "usermodifiedby":item.usermodifiedby,
+            "timestamp":item.created_at,
+            }
+        if item.status == True:
+            activequeue.append(item.mod_id)
         days = Week_Table.objects.filter(mod_id=item.mod_id)
         dayarray=[]
         for day in days:
@@ -99,6 +104,8 @@ def dashboard(request):
             timearray.append(timedictionary)
         objdict["TMF"] = timearray
         fullobj[f"{item.mod_id}"]=objdict
+    #active/nonactive
+    print(activequeue)
     
     return render(request , 'authentication/dashboard.html',{"fullobj":fullobj})
 
@@ -126,6 +133,7 @@ def addform(request):
         for item1,item2 in zip(TMF_time, TMF_factor):
             secondinstances.append(TMF(mod_id = new_instance, hour = item1, factor = item2))
         TMF.objects.bulk_create(secondinstances)
+        return redirect('dashboard')
     return render(request , "authentication/addform.html")
 
 def edit_object(request,pk):
@@ -143,6 +151,7 @@ def edit_object(request,pk):
             TMF_factor = request.POST.getlist('factor[]')
             new_instance.waiting_time = request.POST['waiting_time']
             new_instance.waiting_charge = request.POST['waiting_charge']
+            new_instance.created_at = datetime.now()
             new_instance.status = False
             if request.user.is_authenticated:
                 user = request.user
@@ -158,3 +167,69 @@ def edit_object(request,pk):
             TMF.objects.bulk_create(secondinstances)
             return redirect('dashboard')
     return render(request, 'authentication/editform.html')
+
+def delete_object(request,pk):
+    obj = get_object_or_404(Pricing_Module,pk=pk)
+    print("inside obj")
+    if request.user.is_authenticated:
+        user = request.user
+        print("inside user")
+        if request.method == "POST":
+            print(request.POST['confirmation'])
+            if request.POST['confirmation'] == 'yes':
+                obj.delete()
+            return redirect('dashboard')
+    return render(request,"authentication/deleteconfirmation.html")
+
+
+def deactivate_item(request,pk):
+    if request.method == "POST":
+        if request.POST['confirmation'] == 'yes':
+            querry = Pricing_Module.objects.get(mod_id = pk)
+            new_status = False
+            querry.status = new_status
+            querry.save()
+            return redirect('dashboard')
+        else:
+            return redirect('dashboard')
+    
+    return render(request,"authentication/deactivate.html")
+
+def activate_item(request,pk):
+
+    if request.method == "POST":
+        if request.POST['confirmation'] == 'yes':
+            querys = Pricing_Module.objects.filter(status=True)
+            actives_object = []
+            for query in querys:
+                actives_object.append(query)
+
+            # lets create active objects list of days
+            weeklist1 =[]
+            for object in actives_object:
+                q = Week_Table.objects.filter(mod_id = object.mod_id)
+                for i in q :
+                    weeklist1.append(i.weekday)
+            q2 = Week_Table.objects.filter(mod_id = pk)
+            weeklist2 = []
+            for item in q2:
+                weeklist2.append(item.weekday)
+            
+            
+            #merge and compare the list now 
+            going_to_active_queue = weeklist1 + weeklist2
+            print(going_to_active_queue)
+            if len(going_to_active_queue) == len(set(going_to_active_queue)):
+                change = Pricing_Module.objects.get(mod_id = pk)
+                new_status = True
+                change.status = new_status
+                change.save()
+                return redirect('dashboard')
+            else:
+                messages.error(request , "The Pricing Module Is Already Active On The Given Day ")
+                return redirect('dashboard')
+        else:
+            return redirect('dashboard')
+
+    return render(request,"authentication/activate.html")
+
