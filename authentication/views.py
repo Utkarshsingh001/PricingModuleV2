@@ -132,4 +132,4 @@ def addform(request):
     return render(request , "authentication/addform.html")
 
 def editform(request):
-    return render 
+    return render(request, 'authentication/editform.html')
