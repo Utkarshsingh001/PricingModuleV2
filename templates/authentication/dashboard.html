@@ -59,7 +59,7 @@
                     <td style="color: green;">{{inner_dict.status}}</td>
                     <td>{{inner_dict.usermodifiedby}}</td>
                     <td>time</td>
-                    <td><span class="edit-button"><a href="/editform">Edit</a></span> <br>
+                    <td><a href="{% url 'edit_object' inner_dict.mod_id %}">edit</a> <br>
                         <span class="edit-button">Disable</span> <br>
                         <span class="edit-button">Delete</span></td>
                 </tr>
@@ -68,7 +68,7 @@
             </tbody>
         </table>
         <div class="text-center mt-4">
-            <button class="btn btn-primary" id="addRowButton">Add Row</button>
+            <a href="/addform"><span class="edit-button">Add Pricing Module</span></a> <br>
         </div>
     </div>
 

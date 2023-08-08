@@ -25,6 +25,6 @@ urlpatterns = [
     path('signout', views.signout ,name="signout"),
     path('dashboard', views.dashboard ,name="dashboard"),
     path('addform', views.addform ,name="addform"),
-    path('editform' ,views.editform , name ="editform")
+    path('edit/<int:pk>/' ,views.edit_object , name ="edit_object"),
 
 ]
