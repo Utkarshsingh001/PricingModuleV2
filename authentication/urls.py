@@ -29,5 +29,6 @@ urlpatterns = [
     path('delete/<int:pk>/' ,views.delete_object , name ="delete_object"),
     path('deactivate/<int:pk>/' ,views.deactivate_item , name ="deactivate_item"),
     path('activate/<int:pk>/' ,views.activate_item , name ="activate_item"),
+    path("drivers" , views.drivers ,name="drivers")
 
 ]

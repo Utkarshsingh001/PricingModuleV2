@@ -3,7 +3,7 @@ from django.db import models
 class Pricing_Module(models.Model):
     mod_id = models.AutoField(primary_key=True)
     dbp_price = models.FloatField()
-    dbp_km = models.IntegerField(default=True)
+    dbp_km = models.FloatField(default=True)
     dap = models.FloatField()
     waiting_charge = models.FloatField()
     waiting_time = models.FloatField()

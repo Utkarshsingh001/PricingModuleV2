@@ -4,7 +4,7 @@ from django.contrib.auth.models import User
 from django.contrib import messages
 from django.contrib.auth import authenticate , login , logout
 from datetime import datetime
-
+import math
 from authentication.models import Pricing_Module, Week_Table ,TMF
 
 
@@ -233,3 +233,50 @@ def activate_item(request,pk):
 
     return render(request,"authentication/activate.html")
 
+
+def drivers(request):
+    if request.method == "POST":
+        foundid = 0
+        totaldistance = float(request.POST['total_dist'])
+        day_of_week =request.POST['day']
+        total_time = float(request.POST['time'])
+        waiting_total_time = float(request.POST['waiting_time'])
+        active_object = Pricing_Module.objects.filter(status=True)
+        for items in active_object:
+            qid = Week_Table.objects.filter(mod_id= items.mod_id)
+            for i in qid:
+                if i.weekday == day_of_week.title():
+                   fid = i.mod_id
+                   foundid = fid.mod_id
+        moduleused = Pricing_Module.objects.get( mod_id= foundid)
+        dbp_km = float(moduleused.dbp_km)
+        dbp_price = float(moduleused.dbp_price)
+        dap = float(moduleused.dap)
+        waiting_time = moduleused.waiting_time
+        waiting_charge = moduleused.waiting_charge
+        
+        #filter the TMF Table and get the dictionary
+        tmf = TMF.objects.filter(mod_id=foundid)
+        timearray =[]
+        timedictionary={}
+        thour = []
+        tfactor = []
+        for t in tmf:
+            thour.append(t.hour)
+            tfactor.append(t.factor)
+        lowertimevalue = math.floor(float(total_time)) 
+        if lowertimevalue == 0:
+            tmfvalue = 1
+        elif lowertimevalue in thour:
+            tmfvalue = tfactor[thour.index(lowertimevalue)]
+        else :
+            tmfvalue = tfactor[thour.index(max(thour))]
+        Dn = totaldistance - dbp_km
+        quotient = waiting_total_time // waiting_time
+        quotient -= 1
+        print(quotient)
+        final_pricing = ( dbp_price + (Dn * dap) + (total_time * tmfvalue ) + waiting_charge*quotient) 
+        print(final_pricing)
+
+        
+    return render (request , "authentication/drivers.html")
