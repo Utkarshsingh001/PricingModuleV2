@@ -1,3 +1,5 @@
+from rest_framework.response import Response
+from rest_framework.decorators import api_view
 from django.shortcuts import get_object_or_404, render , redirect
 from django.http import HttpResponse
 from django.contrib.auth.models import User
@@ -6,8 +8,7 @@ from django.contrib.auth import authenticate , login , logout
 from datetime import datetime
 import math
 from authentication.models import Pricing_Module, Week_Table ,TMF
-from rest_framework.decorators import api_view
-from rest_framework.response import Response
+
 
 # Create your views here.
 def home(request):
@@ -323,5 +324,7 @@ def calculation_price_api(request):
     quotient = waiting_total_time // waiting_time
     quotient -= 1
     print(quotient)
+    
     final_pricing = ( dbp_price + (Dn * dap) + (total_time * tmfvalue ) + waiting_charge*quotient)      
+    print(final_pricing)
     return Response({'Pricing' , final_pricing})
