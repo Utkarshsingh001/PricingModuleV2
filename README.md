@@ -26,6 +26,9 @@ In ( Apple M2 Chip mac version )
 
  pip install djangorestframework
 
+9.please run the server locally by running the command
+
+python manage.py runserver
 
 Please read mopre to understand the pricing module 
 
