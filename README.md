@@ -60,6 +60,11 @@ the result will be displayed in the running terminal
 
 As per the requirement the user can alter multiple factors and can make changes to the daily uber or cab services pricing with automation and effective use cases .
 
+----------
+
+for dashboard please visit http://127.0.0.1:8000/dashboard , you can activate and deactivate according to the situation , rememebr not all the modules can be activated as it can lead to the pricing conflict , which has been taken logically on the backend server a pop up will appear if someone tries to do so .
+
+------
 developed by Utkarsh Singh 
 utkarshsingh001997@gmail.com
 8431573174
